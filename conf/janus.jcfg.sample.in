@@ -130,6 +130,8 @@ media: {
 	#dtls_mtu = 1200
 	#no_media_timer = 1
 	#dtls_timeout = 500
+    #audio_codecs = "opus,isac"
+    #video_codecs = "h264,vp8"
 }
 
 # NAT-related stuff: specifically, you can configure the STUN/TURN

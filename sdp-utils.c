@@ -918,6 +918,8 @@ const char *janus_sdp_match_preferred_codec(janus_sdp_mtype type, char *codec) {
 	if(type != JANUS_SDP_AUDIO && type != JANUS_SDP_VIDEO)
 		return NULL;
 	gboolean video = (type == JANUS_SDP_VIDEO);
+	return janus_media_codecs_find(codec, video) ? codec : NULL;
+#if 0
 	uint i=0;
 	for(i=0; i<(video ? janus_video_codecs : janus_audio_codecs); i++) {
 		if(!strcasecmp(codec, (video ? janus_preferred_video_codecs[i] : janus_preferred_audio_codecs[i]))) {
@@ -926,6 +928,7 @@ const char *janus_sdp_match_preferred_codec(janus_sdp_mtype type, char *codec) {
 		}
 	}
 	return NULL;
+#endif
 }
 
 janus_sdp *janus_sdp_new(const char *name, const char *address) {

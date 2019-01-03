@@ -238,6 +238,8 @@ void janus_pluginso_close(void *key, void *value, void *user_data);
 janus_plugin *janus_plugin_find(const gchar *package);
 ///@}
 
+gboolean janus_media_codecs_find(const char *codec, gboolean video);
+
 /*! \brief Helper method to return the path to the provided server certificate */
 gchar *janus_get_server_pem(void);
 /*! \brief Helper method to return the path to the provided server certificate key */

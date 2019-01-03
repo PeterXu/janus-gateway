@@ -63,6 +63,8 @@ static GHashTable *eventhandlers_so = NULL;
 static GHashTable *plugins = NULL;
 static GHashTable *plugins_so = NULL;
 
+static GList *audio_codecs = NULL;
+static GList *video_codecs = NULL;
 
 /* Daemonization */
 static gboolean daemonize = FALSE;
@@ -3167,6 +3169,14 @@ gboolean janus_plugin_auth_signature_contains(janus_plugin *plugin, const char *
 	return janus_auth_check_signature_contains(token, plugin->get_package(), descriptor);
 }
 
+gboolean janus_media_codecs_find(const char *codec, gboolean video) {
+	if (video) {
+		return g_list_find(video_codecs, codec) != NULL;
+	} else {
+		return g_list_find(audio_codecs, codec) != NULL;
+	}
+}
+
 
 /* Main */
 gint main(int argc, char *argv[])
@@ -3894,6 +3904,50 @@ gint main(int argc, char *argv[])
 	JANUS_LOG(LOG_WARN, "Data Channels support not compiled\n");
 #endif
 
+    /* Check audio/video codecs */
+	item = janus_config_get(config, config_media, janus_config_type_item, "audio_codecs");
+	if(item && item->value) {
+		gchar **list = g_strsplit(item->value, ",", -1);
+		gchar *index = list[0];
+		int i=0;
+		while(index != NULL) {
+			if(strlen(index) > 0) {
+				JANUS_LOG(LOG_INFO, "Adding '%s' to the audio codecs...\n", index);
+				audio_codecs = g_list_append(audio_codecs, index);
+			}
+			i++;
+			index = list[i];
+		}
+		g_clear_pointer(&list, g_strfreev);
+	} else {
+		JANUS_LOG(LOG_INFO, "Adding default audio codecs...");
+		uint i = 0;
+		for (; i < janus_audio_codecs; i++) {
+			audio_codecs = g_list_append(audio_codecs, (gpointer)janus_preferred_audio_codecs[i]);
+		}
+	}
+	item = janus_config_get(config, config_media, janus_config_type_item, "video_codecs");
+	if(item && item->value) {
+		gchar **list = g_strsplit(item->value, ",", -1);
+		gchar *index = list[0];
+		int i=0;
+		while(index != NULL) {
+			if(strlen(index) > 0) {
+				JANUS_LOG(LOG_INFO, "Adding '%s' to the video codecs...\n", index);
+				video_codecs = g_list_append(video_codecs, index);
+			}
+			i++;
+			index = list[i];
+		}
+		g_clear_pointer(&list, g_strfreev);
+	}else {
+		JANUS_LOG(LOG_INFO, "Adding default video codecs...");
+		uint i = 0;
+		for (; i < janus_video_codecs; i++) {
+			video_codecs = g_list_append(video_codecs, (gpointer)janus_preferred_video_codecs[i]);
+		}
+	}
+
 	/* Sessions */
 	sessions = g_hash_table_new_full(g_int64_hash, g_int64_equal, (GDestroyNotify)g_free, NULL);
 	janus_mutex_init(&sessions_mutex);
@@ -4417,6 +4471,13 @@ gint main(int argc, char *argv[])
 
 	if(janus_ice_get_static_event_loops() > 0)
 		janus_ice_stop_static_event_loops();
+
+	if(audio_codecs != NULL) {
+		g_list_free(audio_codecs);
+	}
+	if(video_codecs != NULL) {
+		g_list_free(video_codecs);
+	}
 
 #ifdef REFCOUNT_DEBUG
 	/* Any reference counters that are still up while we're leaving? (debug-mode only) */

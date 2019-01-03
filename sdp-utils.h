@@ -21,6 +21,11 @@
 
 #include "refcount.h"
 
+extern const char *janus_preferred_audio_codecs[];
+extern uint janus_audio_codecs;
+extern const char *janus_preferred_video_codecs[];
+extern uint janus_video_codecs;
+
 /*! \brief Janus SDP internal object representation */
 typedef struct janus_sdp {
 	/*! \brief v= */
