@@ -594,3 +594,14 @@ configs:
 
 clean-local:
 	-rm -f docs/doxygen_sqlite3.db
+
+
+## docker
+docker:
+	@rm -rf docker/janus
+	@cp -rf /opt/janus docker/janus
+	@(docker build -t peterxu/janus-gateway:latest docker)
+	@rm -rf docker/janus
+
+docker-run:
+	@(cd docker && docker-compose up -d)

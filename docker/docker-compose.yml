@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  janus-gateway:
+    image: peterxu/janus-gateway:latest 
+    container_name: janus-gateway
+    volumes:
+      - /opt/etc/janus/etc/janus/:/opt/janus/etc/janus/
+      - /opt/etc/janus/log/:/opt/janus/log/
+    ports:
+      - 7088:7088
+      - 8088:8088
+      - 8188:8188
+      - 5002:5002
+      - 5004:5004
+    network_mode: default
